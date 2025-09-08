@@ -1,0 +1,5 @@
+services:
+  tp1:
+    image: ghcr.io/lucasduport/mlops:latest
+    ports:
+      - "6190:80"
