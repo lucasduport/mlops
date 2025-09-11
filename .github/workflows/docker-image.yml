@@ -1,22 +1,17 @@
 name: Docker Image CI
-
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+    branches: ["main"]
 permissions:
   contents: read
   packages: write
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: prod
     steps:
       - uses: actions/checkout@v4
 
@@ -38,13 +33,18 @@ jobs:
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha
-            type=ref,event=pr
 
-      - name: Build and (conditionally) push
+      - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
           file: TP1/Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Pull Docker image on remote machine
+        run: sshpass -p ${{ secrets.SSH_REMOTE_PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_REMOTE_USER }}@${{ secrets.SSH_REMOTE_HOST }} "echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin && docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest && docker logout ghcr.io"
