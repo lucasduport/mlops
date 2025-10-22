@@ -1,0 +1,15 @@
+[project]
+name = "mlops"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "alibi-detect[tensorflow]>=0.12.0",
+    "eurybia>=1.3.3",
+    "ipykernel>=7.0.1",
+    "jupyter-bokeh>=4.0.5",
+    "keras>=2.14.0",
+    "pandas>=2.3.3",
+    "tensorflow>=2.14.1",
+]
